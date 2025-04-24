@@ -55,10 +55,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Apple.cs" />
+    <Compile Include="Banana.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="Cucumber.cs" />
+    <Compile Include="Lemon.cs" />
+    <Compile Include="PlantFactory.cs" />
     <Compile Include="SectionSettingsWindow.xaml.cs">
       <DependentUpon>SectionSettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tomato.cs" />
     <Page Include="AddPlantWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

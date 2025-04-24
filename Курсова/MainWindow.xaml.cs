@@ -83,9 +83,9 @@ namespace SmartGreenhouseSimulator
             var addPlantWindow = new AddPlantWindow();
             if (addPlantWindow.ShowDialog() == true)
             {
-                Plant tempPlant = addPlantWindow.NewPlant;
+                Plant plant = addPlantWindow.NewPlant;
 
-                Canvas sectionCanvas = GetSectionCanvas(tempPlant.Section);
+                Canvas sectionCanvas = GetSectionCanvas(plant.Section);
                 Grid plantContainer = new Grid { Width = 80, Height = 100 };
 
                 Rectangle plantField = new Rectangle
@@ -100,7 +100,7 @@ namespace SmartGreenhouseSimulator
 
                 TextBlock plantName = new TextBlock
                 {
-                    Text = tempPlant.Name,
+                    Text = plant.Name,
                     Foreground = Brushes.Black,
                     FontSize = 14,
                     TextWrapping = TextWrapping.Wrap,
@@ -115,7 +115,7 @@ namespace SmartGreenhouseSimulator
                 {
                     Minimum = 0,
                     Maximum = 100,
-                    Value = 50,
+                    Value = plant.WaterLevel,
                     Height = 10,
                     VerticalAlignment = VerticalAlignment.Bottom,
                     Margin = new Thickness(5, 0, 5, 5)
@@ -128,42 +128,16 @@ namespace SmartGreenhouseSimulator
                 Canvas.SetTop(plantContainer, row * 115 + 10);
                 sectionCanvas.Children.Add(plantContainer);
 
-                Plant realPlant = null;
+                plant.BindVisual(plantField, waterBar);
+                plant.UpdateStatus(_sectionTemperatures[plant.Section],
+                                   _sectionHumidities[plant.Section],
+                                   _sectionLights[plant.Section]);
 
-                realPlant = new Plant(
-                    tempPlant.Name,
-                    Brushes.Yellow,
-                    tempPlant.RequiredTemperature,
-                    tempPlant.RequiredHumidity,
-                    tempPlant.RequiredLight,
-                    tempPlant.Section,
-                    (newColor, rect) =>
-                    {
-                        var colorAnimation = new System.Windows.Media.Animation.ColorAnimation
-                        {
-                            To = ((SolidColorBrush)newColor).Color,
-                            Duration = TimeSpan.FromMilliseconds(500)
-                        };
-
-                        var currentBrush = rect.Fill as SolidColorBrush;
-                        if (currentBrush == null || currentBrush.IsFrozen)
-                        {
-                            currentBrush = new SolidColorBrush(((SolidColorBrush)newColor).Color);
-                            rect.Fill = currentBrush;
-                        }
-
-                        currentBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
-
-                        if (realPlant != null)
-                            waterBar.Value = realPlant.WaterLevel;
-                    }
-                );
-
-                realPlant.TargetRectangle = plantField;
-                _plants.Add(realPlant);
+                _plants.Add(plant);
                 UpdateStatusDisplay();
             }
         }
+
 
         private void AutoWaterPlants_Click(object sender, RoutedEventArgs e)
         {
@@ -171,9 +145,13 @@ namespace SmartGreenhouseSimulator
             {
                 plant.WaterLevel += 20;
                 if (plant.WaterLevel > 100) plant.WaterLevel = 100;
+
+                plant.UpdateStatus(
+                    _sectionTemperatures[plant.Section],
+                    _sectionHumidities[plant.Section],
+                    _sectionLights[plant.Section]);
             }
 
-            UpdatePlantStatuses();
             UpdateStatusDisplay();
             MessageBox.Show("Всі культури було полито.", "Інформація");
         }

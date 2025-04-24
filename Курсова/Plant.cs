@@ -1,85 +1,73 @@
 ﻿using System;
-using System.Threading;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Controls;
 
 namespace SmartGreenhouseSimulator.Models
 {
-    public class Plant
+    public abstract class Plant
     {
-        public string Name { get; set; }
-        public Brush Color { get; set; }
-        public int RequiredTemperature { get; set; }
-        public int RequiredHumidity { get; set; }
-        public int RequiredLight { get; set; }
-        public int WaterLevel { get; set; }
-        public string Status { get; private set; }
+        public string Name { get; protected set; }
+        public int RequiredTemperature { get; protected set; }
+        public int RequiredHumidity { get; protected set; }
+        public int RequiredLight { get; protected set; }
+        public int WaterLevel { get; set; } = 50;
         public int Section { get; set; }
+        public string Status { get; protected set; }
 
-        public Rectangle TargetRectangle { get; set; }
+        private Rectangle _visualRect;
+        private ProgressBar _visualWater;
 
-        private Timer _growthTimer;
-        private Action<Brush, Rectangle> _animatedUpdate;
-
-        public Plant(string name, Brush color, int temp, int humidity, int light, int section, Action<Brush, Rectangle> animatedUpdate)
+        public void BindVisual(Rectangle rect, ProgressBar water)
         {
-            Name = name;
-            Color = color;
-            RequiredTemperature = temp;
-            RequiredHumidity = humidity;
-            RequiredLight = light;
-            WaterLevel = 50;
-            Section = section;
-            _animatedUpdate = animatedUpdate;
-
-            UpdateStatus(temp, humidity, light);
-            StartGrowthTimer();
+            _visualRect = rect;
+            _visualWater = water;
+            UpdateVisual();
         }
 
-        public void UpdateStatus(int currentTemp, int currentHumidity, int currentLight)
+        public abstract Brush GetColorByStatus();
+
+        public virtual void UpdateStatus(int temp, int humidity, int light)
         {
-            bool isTemperatureOk = currentTemp >= RequiredTemperature - 5 && currentTemp <= RequiredTemperature + 5;
-            bool isHumidityOk = currentHumidity >= RequiredHumidity - 10 && currentHumidity <= RequiredHumidity + 10;
-            bool isLightOk = currentLight >= RequiredLight - 100 && currentLight <= RequiredLight + 100;
+            bool isTempOk = temp >= RequiredTemperature - 5 && temp <= RequiredTemperature + 5;
+            bool isHumidityOk = humidity >= RequiredHumidity - 10 && humidity <= RequiredHumidity + 10;
+            bool isLightOk = light >= RequiredLight - 100 && light <= RequiredLight + 100;
             bool isWaterLevelOk = WaterLevel >= 30;
 
-            if (!isTemperatureOk || !isHumidityOk || !isLightOk || !isWaterLevelOk)
-            {
-                Status = "Поганий стан";
-            }
-            else
-            {
-                Status = "Гарний стан";
-            }
+            Status = (isTempOk && isHumidityOk && isLightOk && isWaterLevelOk)
+                ? "Гарний стан" : "Поганий стан";
 
-            Brush targetColor = GetColorByStatus();
-            if (TargetRectangle != null)
-                _animatedUpdate?.Invoke(targetColor, TargetRectangle);
+            UpdateVisual();
         }
 
-        private Brush GetColorByStatus()
+        private void UpdateVisual()
         {
-            if (Status == "Гарний стан")
-                return Brushes.Green;
-            if (Status == "Поганий стан")
-                return Brushes.Red;
-            return Brushes.Yellow;
-        }
-
-        private void StartGrowthTimer()
-        {
-            _growthTimer = new Timer(_ =>
+            if (_visualRect != null)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    if (TargetRectangle != null)
+                    var colorAnimation = new System.Windows.Media.Animation.ColorAnimation
                     {
-                        Brush targetColor = GetColorByStatus();
-                        _animatedUpdate?.Invoke(targetColor, TargetRectangle);
+                        To = ((SolidColorBrush)GetColorByStatus()).Color,
+                        Duration = TimeSpan.FromMilliseconds(500)
+                    };
+
+                    var currentBrush = _visualRect.Fill as SolidColorBrush;
+                    if (currentBrush == null || currentBrush.IsFrozen)
+                    {
+                        currentBrush = new SolidColorBrush(((SolidColorBrush)GetColorByStatus()).Color);
+                        _visualRect.Fill = currentBrush;
+                    }
+
+                    currentBrush.BeginAnimation(SolidColorBrush.ColorProperty, colorAnimation);
+
+                    if (_visualWater != null)
+                    {
+                        _visualWater.Value = WaterLevel;
                     }
                 });
-            }, null, 5000, Timeout.Infinite);
+            }
         }
     }
 }

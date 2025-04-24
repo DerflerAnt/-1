@@ -1,7 +1,6 @@
 ﻿using SmartGreenhouseSimulator.Models;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace SmartGreenhouseSimulator
 {
@@ -14,54 +13,46 @@ namespace SmartGreenhouseSimulator
             InitializeComponent();
         }
 
-        // Обробник події вибору культури
         private void PlantTypePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBoxItem selectedItem = (ComboBoxItem)PlantTypePicker.SelectedItem;
             if (selectedItem != null)
             {
-                string[] optimalValues = selectedItem.Tag.ToString().Split(',');
-                OptimalConditionsDisplay.Text = $"Температура: {optimalValues[0].Trim()}°C, " +
-                                               $"Вологість: {optimalValues[1].Trim()}%, " +
-                                               $"Освітленість: {optimalValues[2].Trim()} люменів";
+                string name = selectedItem.Content.ToString();
+                switch (name)
+                {
+                    case "Огірки": OptimalConditionsDisplay.Text = "Температура: 22°C, Вологість: 60%, Освітленість: 500 люменів"; break;
+                    case "Помідори": OptimalConditionsDisplay.Text = "Температура: 25°C, Вологість: 70%, Освітленість: 600 люменів"; break;
+                    case "Банани": OptimalConditionsDisplay.Text = "Температура: 20°C, Вологість: 50%, Освітленість: 400 люменів"; break;
+                    case "Яблука": OptimalConditionsDisplay.Text = "Температура: 30°C, Вологість: 80%, Освітленість: 700 люменів"; break;
+                    case "Лимон": OptimalConditionsDisplay.Text = "Температура: 28°C, Вологість: 65%, Освітленість: 550 люменів"; break;
+                    default: OptimalConditionsDisplay.Text = "Невідомо"; break;
+                }
             }
         }
 
-        // Обробник події додавання культури
         private void AddPlant_Click(object sender, RoutedEventArgs e)
         {
-            ComboBoxItem plantSelectedItem = (ComboBoxItem)PlantTypePicker.SelectedItem;
-            if (plantSelectedItem == null)
+            ComboBoxItem selectedItem = (ComboBoxItem)PlantTypePicker.SelectedItem;
+            if (selectedItem == null)
             {
                 MessageBox.Show("Виберіть вид культури.", "Помилка");
                 return;
             }
 
-            string[] optimalValues = plantSelectedItem.Tag.ToString().Split(',');
-            if (optimalValues.Length < 3)
+            string plantName = selectedItem.Content.ToString();
+            int sectionIndex = SectionPicker.SelectedIndex;
+
+            try
             {
-                MessageBox.Show("Неправильний формат оптимальних параметрів культури.", "Помилка");
-                return;
+                NewPlant = PlantFactory.CreatePlant(plantName, sectionIndex);
+                DialogResult = true;
+                Close();
             }
-
-            if (!int.TryParse(optimalValues[0].Trim().Trim('('), out int temp) ||
-                !int.TryParse(optimalValues[1].Trim(), out int humidity) ||
-                !int.TryParse(optimalValues[2].Trim().Trim(')'), out int light))
+            catch (System.Exception ex)
             {
-                MessageBox.Show("Помилка у форматі параметрів.", "Помилка");
-                return;
+                MessageBox.Show($"Помилка створення культури: {ex.Message}", "Помилка");
             }
-
-            int selectedSection = SectionPicker.SelectedIndex;
-            string plantName = plantSelectedItem.Content.ToString();
-            Brush color = Brushes.Yellow;
-
-            // Створюємо об'єкт без updateColorAction — він буде призначений у MainWindow
-            NewPlant = new Plant(plantName, color, temp, humidity, light, selectedSection, null);
-
-            DialogResult = true;
-            Close();
         }
-
     }
 }
