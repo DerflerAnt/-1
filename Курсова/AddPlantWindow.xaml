@@ -1,0 +1,34 @@
+﻿<Window x:Class="SmartGreenhouseSimulator.AddPlantWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Додати культуру" Height="360" Width="400">
+    <Grid Margin="10">
+        <StackPanel Margin="0,0,0,-21">
+            <!-- Вид культури -->
+            <TextBlock Text="Вид культури:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <ComboBox Name="PlantTypePicker" SelectionChanged="PlantTypePicker_SelectionChanged" Margin="0,0,0,10">
+                <ComboBoxItem Content="Огірки" Tag="(22, 60, 500)"/>
+                <ComboBoxItem Content="Помідори" Tag="(25, 70, 600)"/>
+                <ComboBoxItem Content="Банани" Tag="(20, 50, 400)"/>
+                <ComboBoxItem Content="Яблука" Tag="(30, 80, 700)"/>
+                <ComboBoxItem Content="Лимон" Tag="(28, 65, 550)"/>
+            </ComboBox>
+
+            <!-- Оптимальні параметри -->
+            <TextBlock Text="Оптимальні параметри:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <TextBlock Name="OptimalConditionsDisplay" Text="Оберіть культуру..." Margin="0,0,0,10"/>
+
+            <!-- Секція -->
+            <TextBlock Text="Секція:" FontWeight="Bold" Margin="0,0,0,5"/>
+            <ComboBox Name="SectionPicker" SelectedIndex="0" Margin="0,0,0,10">
+                <ComboBoxItem Content="Секція 1" Tag="0"/>
+                <ComboBoxItem Content="Секція 2" Tag="1"/>
+                <ComboBoxItem Content="Секція 3" Tag="2"/>
+                <ComboBoxItem Content="Секція 4" Tag="3"/>
+            </ComboBox>
+
+            <!-- Кнопка "Додати культуру" -->
+            <Button Content="Додати культуру" Click="AddPlant_Click" HorizontalAlignment="Center" Width="150" Margin="0,10,0,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
