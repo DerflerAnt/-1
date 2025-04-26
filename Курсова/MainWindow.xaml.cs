@@ -11,6 +11,9 @@ namespace SmartGreenhouseSimulator
     public partial class MainWindow : Window
     {
         private List<Plant> _plants = new List<Plant>();
+        private int _harvestedCount = 0;
+        private int _diedCount = 0;
+
         private int[] _sectionTemperatures = { 22, 25, 20, 30 };
         private int[] _sectionHumidities = { 60, 70, 50, 80 };
         private int[] _sectionLights = { 500, 600, 400, 700 };
@@ -20,7 +23,15 @@ namespace SmartGreenhouseSimulator
             InitializeComponent();
             UpdateStatusDisplay();
         }
+        private void ShowStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            string message = "Статистика теплиці:\n" +
+                             $"Зібрано культур: {_harvestedCount}\n" +
+                             $"Загинуло культур: {_diedCount}\n" +
+                             $"Наразі в теплиці: {_plants.Count}";
 
+            MessageBox.Show(message, "Статистика");
+        }
         private void UpdateStatusDisplay()
         {
             GreenhouseStatus.Text = "Статус секцій:\n" +
@@ -170,6 +181,7 @@ namespace SmartGreenhouseSimulator
             {
                 RemovePlantFromMap(plant);
                 _plants.Remove(plant);
+                _harvestedCount++;
             }
 
             UpdateStatusDisplay();
@@ -193,6 +205,26 @@ namespace SmartGreenhouseSimulator
                     }
                 }
             }
+        }
+        private void RemoveBadPlants_Click(object sender, RoutedEventArgs e)
+        {
+            var badPlants = _plants.FindAll(p => p.Status == "Поганий стан");
+
+            if (badPlants.Count == 0)
+            {
+                MessageBox.Show("Немає культур у поганому стані для видалення.", "Інформація");
+                return;
+            }
+
+            foreach (var plant in badPlants)
+            {
+                RemovePlantFromMap(plant);
+                _plants.Remove(plant);
+                _diedCount++;
+            }
+
+            UpdateStatusDisplay();
+            MessageBox.Show($"Видалено {badPlants.Count} культур у поганому стані.", "Інформація");
         }
 
         private void ExitApp(object sender, RoutedEventArgs e)
