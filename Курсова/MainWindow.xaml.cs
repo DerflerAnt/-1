@@ -104,10 +104,95 @@ namespace SmartGreenhouseSimulator
                     Fill = Brushes.Yellow,
                     Stroke = Brushes.Black,
                     StrokeThickness = 2,
-                    Height = 60,
-                    VerticalAlignment = VerticalAlignment.Top
+                    Height = 20,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    RenderTransformOrigin = new Point(0.5, 0.5),
+                    RenderTransform = new ScaleTransform(1.0, 1.0)
                 };
                 plantContainer.Children.Add(plantField);
+
+                double finalHeight = 60;
+                double growDuration = 1.0; // за замовчуванням 1 секунда
+
+                if (plant.Name == "Огірки")
+                {
+                    finalHeight = 50;
+                    growDuration = 5.8;
+                }
+                else if (plant.Name == "Помідори")
+                {
+                    finalHeight = 60;
+                    growDuration = 5.8;
+                }
+                else if (plant.Name == "Банани")
+                {
+                    finalHeight = 80;
+                    growDuration = 5.5;
+                }
+                else if (plant.Name == "Яблука")
+                {
+                    finalHeight = 70;
+                    growDuration = 5.2;
+                }
+                else if (plant.Name == "Лимон")
+                {
+                    finalHeight = 60;
+                    growDuration = 5.0;
+                }
+
+                // Анімація росту з різними параметрами
+                // Анімація росту висоти
+                // 👉 Спочатку створюємо анімації
+                var growAnimation = new System.Windows.Media.Animation.DoubleAnimation
+                {
+                    From = 20,
+                    To = finalHeight,
+                    Duration = TimeSpan.FromSeconds(growDuration),
+                    EasingFunction = new System.Windows.Media.Animation.CubicEase
+                    {
+                        EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut
+                    }
+                };
+
+                var scaleTransform = plantField.RenderTransform as ScaleTransform;
+
+                // Пульсація по X
+                var scaleXAnimation = new System.Windows.Media.Animation.DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 1.05,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    AutoReverse = true,
+                    RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever
+                };
+
+                // Пульсація по Y
+                var scaleYAnimation = new System.Windows.Media.Animation.DoubleAnimation
+                {
+                    From = 1.0,
+                    To = 1.05,
+                    Duration = TimeSpan.FromSeconds(0.5),
+                    AutoReverse = true,
+                    RepeatBehavior = System.Windows.Media.Animation.RepeatBehavior.Forever
+                };
+
+                // 👉 Тепер обов'язково ПЕРЕД запуском росту підписуємо завершення росту:
+                growAnimation.Completed += (s, args) =>
+                {
+                    scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                    scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                    scaleTransform.ScaleX = 1.0;
+                    scaleTransform.ScaleY = 1.0;
+                };
+
+                // 👉 Тільки тепер запускаємо спочатку пульсацію
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleXProperty, scaleXAnimation);
+                scaleTransform.BeginAnimation(ScaleTransform.ScaleYProperty, scaleYAnimation);
+
+                // 👉 І тепер запускаємо ріст
+                plantField.BeginAnimation(Rectangle.HeightProperty, growAnimation);
+
+
 
                 TextBlock plantName = new TextBlock
                 {

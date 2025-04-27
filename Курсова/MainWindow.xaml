@@ -128,16 +128,16 @@
 
                 <!-- Секція 1 -->
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="0" Grid.Column="0">
-                    <Canvas Name="Section1" Background="#FFDDEEFF"/>
-                </Border>
+                <Canvas Name="Section1" Background="#FFDDEEFF"/>
+            </Border>
 
-                <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="0" Grid.Column="1">
-                    <Canvas Name="Section2" Background="#FFCCE6FF"/>
-                </Border>
+            <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="0" Grid.Column="1">
+                <Canvas Name="Section2" Background="#FFCCE6FF"/>
+            </Border>
 
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="1" Grid.Column="0">
                     <Canvas Name="Section3" Background="#FFE6F7FF"/>
-                </Border>
+                </Border>       
 
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="1" Grid.Column="1">
                     <Canvas Name="Section4" Background="#FFB3E6FF"/>
