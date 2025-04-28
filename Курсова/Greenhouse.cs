@@ -45,7 +45,7 @@ namespace SmartGreenhouseSimulator.Models
         {
             IsVentilationOn = !IsVentilationOn;
         }
-
+        /*
         public string GetStatus()
         {
             string status = "Статус теплиці:\n";
@@ -62,5 +62,6 @@ namespace SmartGreenhouseSimulator.Models
             }
             return status;
         }
+        */
     }
 }

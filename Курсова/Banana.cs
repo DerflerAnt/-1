@@ -13,9 +13,6 @@ namespace SmartGreenhouseSimulator.Models
             Section = section;
         }
 
-        public override Brush GetColorByStatus()
-        {
-            return Status == "Гарний стан" ? Brushes.Green : Brushes.Red;
-        }
+       
     }
 }

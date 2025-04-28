@@ -1,0 +1,14 @@
+﻿<Window x:Class="SmartGreenhouseSimulator.SplashScreenWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None" 
+        AllowsTransparency="True" 
+        Background="Transparent"
+        ShowInTaskbar="False" 
+        Width="1000" Height="600"
+        WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded">
+    <Grid Background="Black" Name="MainGrid" Opacity="0">
+        <Image Source="/Screen.jpg" Stretch="Uniform"/>
+    </Grid>
+</Window>

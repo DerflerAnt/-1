@@ -33,7 +33,10 @@ namespace SmartGreenhouseSimulator.Models
             UpdateVisual();
         }
 
-        public abstract Brush GetColorByStatus();
+        public virtual Brush GetColorByStatus()
+        {
+            return Status == "Гарний стан" ? Brushes.Green : Brushes.Red;
+        }
 
         public virtual void UpdateStatus(int currentTemp, int currentHumidity, int currentLight)
         {
