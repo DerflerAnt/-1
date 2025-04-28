@@ -5,7 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-
+using System.IO;
+using System.Text.Json;
 namespace SmartGreenhouseSimulator
 {
     public partial class MainWindow : Window
@@ -310,6 +311,118 @@ namespace SmartGreenhouseSimulator
 
             UpdateStatusDisplay();
             MessageBox.Show($"Видалено {badPlants.Count} культур у поганому стані.", "Інформація");
+        }
+        private void SaveGreenhouse()
+        {
+            var plantDataList = new List<PlantData>();
+
+            foreach (var plant in _plants)
+            {
+                plantDataList.Add(new PlantData
+                {
+                    Name = plant.Name,
+                    Section = plant.Section,
+                    WaterLevel = plant.WaterLevel,
+                    Status = plant.Status  // ➡ додали
+                });
+            }
+
+            string json = JsonSerializer.Serialize(plantDataList, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText("greenhouse.json", json);
+
+            MessageBox.Show("Теплицю збережено!", "Інформація");
+        }
+
+        private void LoadGreenhouse()
+        {
+            if (!File.Exists("greenhouse.json"))
+            {
+                MessageBox.Show("Файл з теплицею не знайдено!", "Помилка");
+                return;
+            }
+
+            string json = File.ReadAllText("greenhouse.json");
+            var plantDataList = JsonSerializer.Deserialize<List<PlantData>>(json);
+
+            // Очищаємо старі культури
+            foreach (var plant in _plants.ToArray())
+            {
+                RemovePlantFromMap(plant);
+                _plants.Remove(plant);
+            }
+
+            // Відновлюємо культури
+            foreach (var data in plantDataList)
+            {
+                Plant plant = PlantFactory.CreatePlant(data.Name, data.Section);
+                plant.WaterLevel = data.WaterLevel;
+                plant.SetStatus(data.Status);
+
+                // Далі додаємо їх на карту так само, як у AddPlant_Click
+                Canvas sectionCanvas = GetSectionCanvas(plant.Section);
+                Grid plantContainer = new Grid { Width = 80, Height = 100 };
+
+                Rectangle plantField = new Rectangle
+                {
+                    Fill = Brushes.Yellow,
+                    Stroke = Brushes.Black,
+                    StrokeThickness = 2,
+                    Height = 60,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+                plantContainer.Children.Add(plantField);
+
+                TextBlock plantName = new TextBlock
+                {
+                    Text = plant.Name,
+                    Foreground = Brushes.Black,
+                    FontSize = 14,
+                    TextWrapping = TextWrapping.Wrap,
+                    TextAlignment = TextAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Margin = new Thickness(0, 0, 0, 20)
+                };
+                plantContainer.Children.Add(plantName);
+
+                ProgressBar waterBar = new ProgressBar
+                {
+                    Minimum = 0,
+                    Maximum = 100,
+                    Value = plant.WaterLevel,
+                    Height = 10,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Margin = new Thickness(5, 0, 5, 5)
+                };
+                plantContainer.Children.Add(waterBar);
+
+                int row = sectionCanvas.Children.Count / 3;
+                int col = sectionCanvas.Children.Count % 3;
+                Canvas.SetLeft(plantContainer, col * 105 + 10);
+                Canvas.SetTop(plantContainer, row * 115 + 10);
+                sectionCanvas.Children.Add(plantContainer);
+
+                plant.BindVisual(plantField, waterBar);
+
+                // Оновлюємо візуальний вигляд без змін температури
+                plant.UpdateStatus(
+                    _sectionTemperatures[plant.Section],
+                    _sectionHumidities[plant.Section],
+                    _sectionLights[plant.Section]);
+
+                _plants.Add(plant);
+            }
+
+            UpdateStatusDisplay();
+            MessageBox.Show("Теплицю завантажено!", "Інформація");
+        }
+        private void SaveGreenhouse_Click(object sender, RoutedEventArgs e)
+        {
+            SaveGreenhouse();
+        }
+
+        private void LoadGreenhouse_Click(object sender, RoutedEventArgs e)
+        {
+            LoadGreenhouse();
         }
 
         private void ExitApp(object sender, RoutedEventArgs e)

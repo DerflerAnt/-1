@@ -75,6 +75,10 @@ namespace SmartGreenhouseSimulator.Models
 
             UpdateVisual();
         }
+        public void SetStatus(string status)
+        {
+            Status = status;
+        }
 
         private void UpdateVisual()
         {
