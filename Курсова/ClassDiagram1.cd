@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="SmartGreenhouseSimulator.MainWindow">
+    <Position X="8" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EYAFQAQAAAAJFCk4BIAQgIACgQIAEBgiAFCAEQAABBA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Orientation="Left" Position="0.378" />
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Plant" Collapsed="true">
+    <Position X="11.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AkAAEIIEACAAEAACIIAAAIQC0ABQAiBAIAAAAMAAAAE=</HashCode>
+      <FileName>Plant.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.AddPlantWindow" BaseTypeListCollapsed="true">
+    <Position X="15" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAEAAAAAAAAAAAAAAAAAACAAAAAAAAA=</HashCode>
+      <FileName>AddPlantWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.SectionSettingsWindow" BaseTypeListCollapsed="true">
+    <Position X="16.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAACAgAgAAAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>SectionSettingsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.1" Collapsed="true" />
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.SplashScreenWindow" BaseTypeListCollapsed="true">
+    <Position X="23" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SplashScreenWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Курсова.App" Collapsed="true">
+    <Position X="18.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Курсова.Constants">
+    <Position X="16.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Constants.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Apple">
+    <Position X="4.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Apple.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Banana">
+    <Position X="9" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Banana.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Cucumber">
+    <Position X="11.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Cucumber.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Greenhouse">
+    <Position X="20.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQIAAAAAAEAAAAAAQAAAAEAAACEAAQABAgAAAAiAA=</HashCode>
+      <FileName>Greenhouse.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.GreenhouseSaveData">
+    <Position X="17" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAARAAAAAAAEAAAAAAAAAgAAAAAAAAAAABAAAAgUQAA=</HashCode>
+      <FileName>GreenhouseSaveData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Lemon">
+    <Position X="6.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Lemon.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.PlantData">
+    <Position X="18.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>PlantData.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.PlantFactory">
+    <Position X="15" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>PlantFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SmartGreenhouseSimulator.Models.Tomato">
+    <Position X="13" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tomato.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Курсова.Properties.Resources">
+    <Position X="22.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Курсова.Properties.Settings">
+    <Position X="20.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

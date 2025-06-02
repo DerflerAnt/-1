@@ -90,6 +90,7 @@
     <Compile Include="Banana.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Cucumber.cs" />
+    <Compile Include="GreenhouseSaveData.cs" />
     <Compile Include="Lemon.cs" />
     <Compile Include="PlantData.cs" />
     <Compile Include="PlantFactory.cs" />
@@ -148,6 +149,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

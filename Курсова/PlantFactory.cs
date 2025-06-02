@@ -13,5 +13,6 @@ namespace SmartGreenhouseSimulator.Models
             if (name == "Лимон") return new Lemon(section);
             throw new ArgumentException("Невідома культура");
         }
+
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace SmartGreenhouseSimulator.Models
 {
     public class Greenhouse
     {
-        public List<Plant> Plants { get; private set; } = new List<Plant>();
+        public ObservableCollection<Plant> Plants { get; set; } = new ObservableCollection<Plant>();
         public Plant[,] CropField { get; private set; } // Карта посівів
-        public bool IsHeatingOn { get; private set; } // Стан опалення
-        public bool IsVentilationOn { get; private set; } // Стан вентиляції
+        public bool IsHeatingOn { get; set; } // Стан опалення
+        public bool IsVentilationOn { get; set; } // Стан вентиляції
         private int fieldWidth = 3; // Максимум 3 культури на ряд
         private int fieldHeight = 2; // Максимум 2 ряди
 
@@ -36,16 +37,19 @@ namespace SmartGreenhouseSimulator.Models
             return false;
         }
 
-        public void ToggleHeating()
+        public void ApplyHeating(ref int[] temperatures)
         {
-            IsHeatingOn = !IsHeatingOn;
+            for (int i = 0; i < temperatures.Length; i++)
+                temperatures[i] += 2;
         }
 
-        public void ToggleVentilation()
+        public void ApplyVentilation(ref int[] temperatures)
         {
-            IsVentilationOn = !IsVentilationOn;
+            for (int i = 0; i < temperatures.Length; i++)
+                temperatures[i] -= 2;
         }
-        /*
+
+        
         public string GetStatus()
         {
             string status = "Статус теплиці:\n";
@@ -62,6 +66,6 @@ namespace SmartGreenhouseSimulator.Models
             }
             return status;
         }
-        */
+        
     }
 }

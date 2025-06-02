@@ -7,40 +7,175 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.IO;
 using System.Text.Json;
+using System.Collections.ObjectModel;
+using System.Numerics;
+using System.Linq;
+
+
 namespace SmartGreenhouseSimulator
 {
     public partial class MainWindow : Window
     {
         private List<Plant> _plants = new List<Plant>();
+
         private int _harvestedCount = 0;
         private int _diedCount = 0;
+        private Dictionary<string, int> _harvestedByType = new Dictionary<string, int>();
+        private ObservableCollection<Plant> plantList = new ObservableCollection<Plant>();
+        private Greenhouse greenhouse = new Greenhouse();
+
+        private int currentTemp = 25;
+        private int currentHumidity = 60;
+        private int currentLight = 500;
+        private Greenhouse _greenhouse = new Greenhouse();
 
         private int[] _sectionTemperatures = { 22, 25, 20, 30 };
         private int[] _sectionHumidities = { 60, 70, 50, 80 };
         private int[] _sectionLights = { 500, 600, 400, 700 };
+        private System.Timers.Timer _fertilizationTimer;
+        private bool[] _isFertilizing = new bool[4]; // по одній на секцію
+        private Brush[] _originalSectionColors = new Brush[4];
+        private int _removedCount = 0;
+        private int _addedCount = 0;
 
         public MainWindow()
         {
             InitializeComponent();
+            _originalSectionColors[0] = Section1.Background;
+            _originalSectionColors[1] = Section2.Background;
+            _originalSectionColors[2] = Section3.Background;
+            _originalSectionColors[3] = Section4.Background;
             UpdateStatusDisplay();
+            StartFertilizationTimer();
+            plantDataGrid.ItemsSource = greenhouse.Plants;          
+            plantDataGrid.ItemsSource = plantList;
+
         }
+        private void ApplyHeating_Click(object sender, RoutedEventArgs e)
+        {
+            _greenhouse.ApplyHeating(ref _sectionTemperatures);
+            UpdatePlantStatuses(); // щоб рослини оновилися
+            UpdateStatusDisplay();
+            MessageBox.Show("Температуру підвищено на 2°C у всіх секціях.", "Опалення");
+        }
+
+        private void ApplyVentilation_Click(object sender, RoutedEventArgs e)
+        {
+            _greenhouse.ApplyVentilation(ref _sectionTemperatures);
+            UpdatePlantStatuses();
+            UpdateStatusDisplay();
+            MessageBox.Show("Температуру знижено на 2°C у всіх секціях.", "Вентиляція");
+        }
+
+
         private void ShowStatistics_Click(object sender, RoutedEventArgs e)
         {
             string message = "Статистика теплиці:\n" +
-                             $"Зібрано культур: {_harvestedCount}\n" +
-                             $"Загинуло культур: {_diedCount}\n" +
-                             $"Наразі в теплиці: {_plants.Count}";
+                $"Зібрано культур: {_harvestedCount}\n" +
+                $"Загинуло культур: {_diedCount}\n" +
+                $"Наразі в теплиці: {_plants.Count}\n\n" +
+                "Зібрано по культурах:\n";
+
+            foreach (var entry in _harvestedByType)
+            {
+                message += $"{entry.Key}: {entry.Value}\n";
+            }
 
             MessageBox.Show(message, "Статистика");
         }
+        private void StartFertilizationTimer()
+        {
+            _fertilizationTimer = new System.Timers.Timer(30000); // кожні 30 секунд
+            _fertilizationTimer.Elapsed += (s, e) =>
+            {
+                Dispatcher.Invoke(() => StartFertilization());
+            };
+            _fertilizationTimer.Start();
+        }
+
+        private void StartFertilization()
+        {
+            List<int> emptySections = new List<int>();
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (!_isFertilizing[i] && IsSectionEmpty(i))
+                    emptySections.Add(i);
+            }
+
+            if (emptySections.Count == 0) return;
+
+            Random rnd = new Random();
+            int sectionIndex = emptySections[rnd.Next(emptySections.Count)];
+
+            _isFertilizing[sectionIndex] = true;
+            var canvas = GetSectionCanvas(sectionIndex);
+
+            // 🔄 Змінюємо фон 
+            canvas.Background = new SolidColorBrush(Colors.MediumPurple);
+
+            // 🎯 Створюємо іконку удобрення
+            TextBlock icon = new TextBlock
+            {
+                Text = "⚗️",
+                FontSize = 60,
+                Foreground = Brushes.Black,
+                FontWeight = FontWeights.Bold
+            };
+            Canvas.SetLeft(icon, 110);
+            Canvas.SetTop(icon, 56);
+            canvas.Children.Add(icon);
+
+            // 📝 Статус
+            GreenhouseStatus.Text += $"\n⚠️ Секція {sectionIndex + 1} удобрюється 10 секунд.";
+           // MessageBox.Show($"Секція {sectionIndex + 1} автоматично удобрюється. Не можна додавати культури 10 секунд.", "Удобрення");
+
+            // ✅ Спільний таймер
+            var timer = new System.Timers.Timer(10000);
+            timer.Elapsed += (s, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    _isFertilizing[sectionIndex] = false;
+
+                    // ❌ Повертаємо фон
+                    canvas.Background = _originalSectionColors[sectionIndex];
+
+                    // ❌ Видаляємо іконку
+                    canvas.Children.Remove(icon);
+
+                    UpdateStatusDisplay();
+                   // MessageBox.Show($"Секція {sectionIndex + 1} знову доступна для посадки.", "Удобрення завершено");
+                });
+                timer.Stop();
+                timer.Dispose();
+            };
+            timer.Start();
+        }
+
+
+
+
         private void UpdateStatusDisplay()
         {
-            GreenhouseStatus.Text = "Статус секцій:\n" +
+            GreenhouseStatus.Text = "Статус теплиці:\n" +
                 $"Секція 1: {_sectionTemperatures[0]}°C, {_sectionHumidities[0]}%, {_sectionLights[0]} люменів\n" +
                 $"Секція 2: {_sectionTemperatures[1]}°C, {_sectionHumidities[1]}%, {_sectionLights[1]} люменів\n" +
                 $"Секція 3: {_sectionTemperatures[2]}°C, {_sectionHumidities[2]}%, {_sectionLights[2]} люменів\n" +
                 $"Секція 4: {_sectionTemperatures[3]}°C, {_sectionHumidities[3]}%, {_sectionLights[3]} люменів\n";
+
+            // Якщо якась секція удобрюється — показати це
+            for (int i = 0; i < 4; i++)
+            {
+                if (_isFertilizing[i])
+                {
+                    GreenhouseStatus.Text += $"\n⚠️ Секція {i + 1} УДОБРЮЄТЬСЯ!";
+                }
+            }
+
         }
+
+
 
         private Canvas GetSectionCanvas(int sectionIndex)
         {
@@ -96,9 +231,19 @@ namespace SmartGreenhouseSimulator
             if (addPlantWindow.ShowDialog() == true)
             {
                 Plant plant = addPlantWindow.NewPlant;
-
+                if (_isFertilizing[plant.Section])
+                {
+                    MessageBox.Show($"Секція {plant.Section + 1} наразі удобрюється. Додавання культур тимчасово неможливе.", "Увага", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
                 Canvas sectionCanvas = GetSectionCanvas(plant.Section);
-                Grid plantContainer = new Grid { Width = 80, Height = 100 };
+                if (sectionCanvas.Children.Count >= 6)
+                {
+                    MessageBox.Show("У цій секції вже 6 культур. Зачекайте, поки щось виросте або зберіть урожай.", "Обмеження", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                Grid plantContainer = new Grid { Width = 80, Height = 100, Tag = plant };
+    
 
                 Rectangle plantField = new Rectangle
                 {
@@ -197,7 +342,8 @@ namespace SmartGreenhouseSimulator
 
                 TextBlock plantName = new TextBlock
                 {
-                    Text = plant.Name,
+                    Text = GetEmojiForPlant(plant.Name) + " " + plant.Name,
+
                     Foreground = Brushes.Black,
                     FontSize = 14,
                     TextWrapping = TextWrapping.Wrap,
@@ -207,6 +353,20 @@ namespace SmartGreenhouseSimulator
                     Margin = new Thickness(0, 0, 0, 20)
                 };
                 plantContainer.Children.Add(plantName);
+                ProgressBar fertilizerBar = new ProgressBar
+                {
+                    Minimum = 0,
+                    Maximum = 10, // 10 секунд дії
+                    Value = 0,
+                    Height = 6,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Margin = new Thickness(5, 5, 5, 0),
+                    Foreground = Brushes.MediumPurple
+                };
+                plantContainer.Children.Add(fertilizerBar);
+
+                // зв'язати з рослиною (додати у Plant.cs поле для нього)
+                plant.BindFertilizerBar(fertilizerBar);
 
                 ProgressBar waterBar = new ProgressBar
                 {
@@ -231,7 +391,54 @@ namespace SmartGreenhouseSimulator
                                    _sectionLights[plant.Section]);
 
                 _plants.Add(plant);
+                plantList.Add(plant);
+
                 UpdateStatusDisplay();
+            }
+        }
+        private string GetEmojiForPlant(string name)
+        {
+            switch (name)
+            {
+                case "Огірки": return "🥒";
+                case "Помідори": return "🍅";
+                case "Банани": return "🍌";
+                case "Яблука": return "🍎";
+                case "Лимон": return "🍋";
+                default: return "🌱";
+            }
+        }
+        private bool IsSectionEmpty(int sectionIndex)
+        {
+            var canvas = GetSectionCanvas(sectionIndex);
+            return canvas.Children.Count == 0;
+        }
+
+
+
+
+        private void FertilizePlant_Click(object sender, RoutedEventArgs e)
+        {
+            if (plantDataGrid.SelectedItem is Plant selectedPlant)
+            {
+                selectedPlant.ApplyFertilizer(10); // добриво діє 10 секунд
+
+                // Оновити відображення одразу
+                selectedPlant.UpdateStatus(currentTemp, currentHumidity, currentLight);
+
+                // Запускаємо таймер на завершення ефекту добрива
+                var timer = new System.Windows.Threading.DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(10); // тривалість добрива
+                timer.Tick += (s, args) =>
+                {
+                    timer.Stop();
+                    selectedPlant.UpdateStatus(currentTemp, currentHumidity, currentLight); // повторно оновити
+                };
+                timer.Start();
+            }
+            else
+            {
+                MessageBox.Show("Будь ласка, виберіть рослину зі списку.");
             }
         }
 
@@ -247,15 +454,20 @@ namespace SmartGreenhouseSimulator
                     _sectionTemperatures[plant.Section],
                     _sectionHumidities[plant.Section],
                     _sectionLights[plant.Section]);
+
+                // 🔄 Примусово оновити прогресбар
+                plant.ForceVisualUpdate();
             }
 
             UpdateStatusDisplay();
             MessageBox.Show("Всі культури було полито.", "Інформація");
         }
 
+
         private void HarvestPlant_Click(object sender, RoutedEventArgs e)
         {
-            var harvestedPlants = _plants.FindAll(p => p.Status == "Гарний стан");
+            // Збираємо всі рослини в гарному стані
+            var harvestedPlants = _plants.Where(p => p.Status == "Гарний стан").ToList();
 
             if (harvestedPlants.Count == 0)
             {
@@ -265,8 +477,18 @@ namespace SmartGreenhouseSimulator
 
             foreach (var plant in harvestedPlants)
             {
+                // Підрахунок по типах
+                if (_harvestedByType.ContainsKey(plant.Name))
+                    _harvestedByType[plant.Name]++;
+                else
+                    _harvestedByType[plant.Name] = 1;
+
                 RemovePlantFromMap(plant);
+
+                // Видалення з ObservableCollection
+                plant.Dispose(); // перед _plants.Remove(plant);
                 _plants.Remove(plant);
+                plantList.Remove(plant);
                 _harvestedCount++;
             }
 
@@ -274,24 +496,21 @@ namespace SmartGreenhouseSimulator
             MessageBox.Show($"Зібрано {harvestedPlants.Count} культур.", "Успіх");
         }
 
+
         private void RemovePlantFromMap(Plant plant)
         {
             Canvas sectionCanvas = GetSectionCanvas(plant.Section);
 
-            for (int i = 0; i < sectionCanvas.Children.Count; i++)
+            foreach (UIElement element in sectionCanvas.Children)
             {
-                var child = sectionCanvas.Children[i] as Grid;
-                if (child != null && child.Children.Count > 1)
+                if (element is Grid grid && grid.Tag is Plant linkedPlant && linkedPlant == plant)
                 {
-                    var textBlock = child.Children[1] as TextBlock;
-                    if (textBlock != null && textBlock.Text == plant.Name)
-                    {
-                        sectionCanvas.Children.Remove(child);
-                        break;
-                    }
+                    sectionCanvas.Children.Remove(grid);
+                    break;
                 }
             }
         }
+
         private void RemoveBadPlants_Click(object sender, RoutedEventArgs e)
         {
             var badPlants = _plants.FindAll(p => p.Status == "Поганий стан");
@@ -305,7 +524,9 @@ namespace SmartGreenhouseSimulator
             foreach (var plant in badPlants)
             {
                 RemovePlantFromMap(plant);
+                plant.Dispose(); // перед _plants.Remove(plant);
                 _plants.Remove(plant);
+                plantList.Remove(plant);
                 _diedCount++;
             }
 
@@ -323,15 +544,32 @@ namespace SmartGreenhouseSimulator
                     Name = plant.Name,
                     Section = plant.Section,
                     WaterLevel = plant.WaterLevel,
-                    Status = plant.Status  // ➡ додали
+                    Status = plant.Status
                 });
             }
 
-            string json = JsonSerializer.Serialize(plantDataList, new JsonSerializerOptions { WriteIndented = true });
+            var saveData = new GreenhouseSaveData
+            {
+                Plants = plantDataList,
+                Temperatures = _sectionTemperatures,
+                Humidities = _sectionHumidities,
+                Lights = _sectionLights,
+                IsHeatingOn = _greenhouse.IsHeatingOn,
+                IsVentilationOn = _greenhouse.IsVentilationOn,
+
+                // ✅ Статистика
+                HarvestedCount = _harvestedCount,
+                RemovedCount = _removedCount,
+                AddedCount = _addedCount
+            };
+
+            string json = JsonSerializer.Serialize(saveData, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText("greenhouse.json", json);
 
             MessageBox.Show("Теплицю збережено!", "Інформація");
         }
+
+
 
         private void LoadGreenhouse()
         {
@@ -342,29 +580,50 @@ namespace SmartGreenhouseSimulator
             }
 
             string json = File.ReadAllText("greenhouse.json");
-            var plantDataList = JsonSerializer.Deserialize<List<PlantData>>(json);
+            var saveData = JsonSerializer.Deserialize<GreenhouseSaveData>(json);
 
-            // Очищаємо старі культури
+            // Очистити старі рослини
             foreach (var plant in _plants.ToArray())
             {
                 RemovePlantFromMap(plant);
                 _plants.Remove(plant);
             }
 
-            // Відновлюємо культури
-            foreach (var data in plantDataList)
+            // Відновити параметри середовища
+            _sectionTemperatures = saveData.Temperatures;
+            _sectionHumidities = saveData.Humidities;
+            _sectionLights = saveData.Lights;
+            _greenhouse.IsHeatingOn = saveData.IsHeatingOn;
+            _greenhouse.IsVentilationOn = saveData.IsVentilationOn;
+
+            // ✅ Відновити статистику
+            _harvestedCount = saveData.HarvestedCount;
+            _removedCount = saveData.RemovedCount;
+            _addedCount = saveData.AddedCount;
+
+            // Відновлення культур
+            foreach (var data in saveData.Plants)
             {
                 Plant plant = PlantFactory.CreatePlant(data.Name, data.Section);
                 plant.WaterLevel = data.WaterLevel;
                 plant.SetStatus(data.Status);
 
-                // Далі додаємо їх на карту так само, як у AddPlant_Click
                 Canvas sectionCanvas = GetSectionCanvas(plant.Section);
-                Grid plantContainer = new Grid { Width = 80, Height = 100 };
+
+                Grid plantContainer = new Grid { Width = 80, Height = 100, Tag = plant };
+
+                Rectangle fertilizingBar = new Rectangle
+                {
+                    Fill = Brushes.LightGreen,
+                    Height = 5,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Top
+                };
+                plantContainer.Children.Add(fertilizingBar);
 
                 Rectangle plantField = new Rectangle
                 {
-                    Fill = Brushes.Yellow,
+                    Fill = plant.GetColorByStatus(),
                     Stroke = Brushes.Black,
                     StrokeThickness = 2,
                     Height = 60,
@@ -395,26 +654,30 @@ namespace SmartGreenhouseSimulator
                 };
                 plantContainer.Children.Add(waterBar);
 
-                int row = sectionCanvas.Children.Count / 3;
-                int col = sectionCanvas.Children.Count % 3;
-                Canvas.SetLeft(plantContainer, col * 105 + 10);
-                Canvas.SetTop(plantContainer, row * 115 + 10);
-                sectionCanvas.Children.Add(plantContainer);
-
                 plant.BindVisual(plantField, waterBar);
 
-                // Оновлюємо візуальний вигляд без змін температури
                 plant.UpdateStatus(
                     _sectionTemperatures[plant.Section],
                     _sectionHumidities[plant.Section],
                     _sectionLights[plant.Section]);
 
+                int row = sectionCanvas.Children.Count / 3;
+                int col = sectionCanvas.Children.Count % 3;
+                Canvas.SetLeft(plantContainer, col * 105 + 10);
+                Canvas.SetTop(plantContainer, row * 115 + 10);
+
+                sectionCanvas.Children.Add(plantContainer);
                 _plants.Add(plant);
             }
 
             UpdateStatusDisplay();
             MessageBox.Show("Теплицю завантажено!", "Інформація");
         }
+
+
+
+
+
         private void SaveGreenhouse_Click(object sender, RoutedEventArgs e)
         {
             SaveGreenhouse();

@@ -80,15 +80,19 @@
         </Grid.Background>
 
         <!-- Головне меню -->
-        <Menu VerticalAlignment="Top" Background="#FF64B5F6" Foreground="White" FontWeight="Bold">
+        <Menu VerticalAlignment="Top" Background="#FF64B5F6" Foreground="Black" FontWeight="Bold">
             <MenuItem Header="Керування">
+                <MenuItem Header="Увімкнути опалення" Click="ApplyHeating_Click"/>
+                <MenuItem Header="Увімкнути вентиляцію" Click="ApplyVentilation_Click"/>
                 <MenuItem Header="Параметри секції 1" Click="EditSection1"/>
                 <MenuItem Header="Параметри секції 2" Click="EditSection2"/>
                 <MenuItem Header="Параметри секції 3" Click="EditSection3"/>
                 <MenuItem Header="Параметри секції 4" Click="EditSection4"/>
             </MenuItem>
             <MenuItem Header="Налаштування">
-                <MenuItem Header="Додати культуру" Click="AddPlant_Click"/>
+                <!--MenuItem Header="Додати культуру" Click="AddPlant_Click"/-->
+                <MenuItem Header="Зберегти теплицю" Click="SaveGreenhouse_Click"/>
+                <MenuItem Header="Завантажити теплицю" Click="LoadGreenhouse_Click"/>
                 <MenuItem Header="Вихід" Click="ExitApp"/>
             </MenuItem>
         </Menu>
@@ -107,17 +111,32 @@
                     <Button Content="Видалити погані культури" Width="200" Click="RemoveBadPlants_Click" HorizontalAlignment="Center"/>
                     <Button Content="Статистика" Width="200" Click="ShowStatistics_Click" HorizontalAlignment="Center"/>
                     <Button Content="Автоматичний полив" Width="200" Click="AutoWaterPlants_Click" HorizontalAlignment="Center"/>
-                    <Button Content="Зберегти теплицю" Width="200" Click="SaveGreenhouse_Click" HorizontalAlignment="Center" Margin="0,10,0,0"/>
-                    <Button Content="Завантажити теплицю" Width="200" Click="LoadGreenhouse_Click" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+
+                    <Button Content="Удобрити обрану рослину" Width="200" Click="FertilizePlant_Click" Margin="5" />
+                    <DataGrid x:Name="plantDataGrid" AutoGenerateColumns="False" Height="150" Margin="0,10,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Назва" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Стан" Binding="{Binding Status}" Width="*"/>
+                            <DataGridTextColumn Header="Секція" Binding="{Binding Section}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+
+                    <!--Button Content="Зберегти теплицю" Width="200" Click="SaveGreenhouse_Click" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                    <Button Content="Завантажити теплицю" Width="200" Click="LoadGreenhouse_Click" HorizontalAlignment="Center" Margin="0,10,0,0"/-->
 
                     <!-- Довідка про колір культури -->
-                    <TextBlock Text="Довідка про колір культури:" FontWeight="Bold" Margin="0,20,0,5"/>
+                    <!--TextBlock Text="Довідка про колір культури:" FontWeight="Bold" Margin="0,20,0,5"/>
                     <TextBlock Text="Жовтий: культура росте."/>
                     <TextBlock Text="Червоний: неоптимальні умови."/>
                     <TextBlock Text="Зелений: готова до збору."/>
+                    <TextBlock Text="Фіолетовий: рослину удобрено."/>
+                    <TextBlock Text="Сірий: культура зів'яла."/>
+                    <TextBlock Text="Блакитний: нова культура, щойно висаджена."/-->
+
                 </StackPanel>
             </Border>
-
+            
             <!-- Карта теплиці -->
             <Grid Name="GreenhouseMap">
                 <Grid.ColumnDefinitions>
@@ -131,19 +150,19 @@
 
                 <!-- Секція 1 -->
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="0" Grid.Column="0">
-                <Canvas Name="Section1" Background="#FFDDEEFF"/>
+                    <Canvas Name="Section1" Background="#FFE8F5E9"/>
             </Border>
 
             <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="0" Grid.Column="1">
-                <Canvas Name="Section2" Background="#FFCCE6FF"/>
+                    <Canvas Name="Section2" Background="#FFC8E6C9"/>
             </Border>
 
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="1" Grid.Column="0">
-                    <Canvas Name="Section3" Background="#FFE6F7FF"/>
+                    <Canvas Name="Section3" Background="#FFA5D6A7"/>
                 </Border>       
 
                 <Border Style="{StaticResource SectionBorderStyle}" Grid.Row="1" Grid.Column="1">
-                    <Canvas Name="Section4" Background="#FFB3E6FF"/>
+                    <Canvas Name="Section4" Background="#FF81C784"/>
                 </Border>
 
             </Grid>
